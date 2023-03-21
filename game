@@ -1,0 +1,86 @@
+import android.os.Bundle;
+import android.os.Handler;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity;
+import java.util.Random;
+
+public class MainActivity extends AppCompatActivity {
+    private ImageView[] moleHoles;
+    private Handler handler = new Handler();y
+    private TextView scoreText;
+    private TextView timeText;
+    private int score = 0;
+    private int timeLeft = 30;
+    private boolean gameEnded = false;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        moleHoles = new ImageView[9];
+        moleHoles[0] = findViewById(R.id.moleHole1);
+        moleHoles[1] = findViewById(R.id.moleHole2);
+        moleHoles[2] = findViewById(R.id.moleHole3);
+        moleHoles[3] = findViewById(R.id.moleHole4);
+        moleHoles[4] = findViewById(R.id.moleHole5);
+        moleHoles[5] = findViewById(R.id.moleHole6);
+        moleHoles[6] = findViewById(R.id.moleHole7);
+        moleHoles[7] = findViewById(R.id.moleHole8);
+        moleHoles[8] = findViewById(R.id.moleHole9);
+
+        scoreText = findViewById(R.id.scoreText);
+        timeText = findViewById(R.id.timeText);
+
+        newMole();
+        startTimer();
+    }
+
+    public void onMoleClick(View view) {
+        if (gameEnded) {
+            return;
+        }
+
+        ImageView mole = (ImageView) view;
+        mole.setImageResource(R.drawable.mole_dead);
+        score += 1;
+        scoreText.setText(getString(R.string.score, score));
+
+        handler.postDelayed(() -> {
+            mole.setImageResource(R.drawable.mole_hole);
+            newMole();
+        }, 1000);
+    }
+
+    private void newMole() {
+        if (gameEnded) {
+            return;
+        }
+
+        Random random = new Random();
+        int index = random.nextInt(9);
+        ImageView mole = moleHoles[index];
+        mole.setImageResource(R.drawable.mole);
+
+        handler.postDelayed(() -> {
+            mole.setImageResource(R.drawable.mole_hole);
+            newMole();
+        }, 3000);
+    }
+
+    private void startTimer() {
+        handler.postDelayed(() -> {
+            timeLeft -= 1;
+            timeText.setText(getString(R.string.time, timeLeft));
+
+            if (timeLeft == 0) {
+                gameEnded = true;
+                timeText.setText(getString(R.string.game_over));
+            } else {
+                startTimer();
+            }
+        }, 1000);
+    }
+}
